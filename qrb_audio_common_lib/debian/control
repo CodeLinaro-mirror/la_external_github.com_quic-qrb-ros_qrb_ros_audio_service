@@ -8,6 +8,7 @@ Build-Depends:
  cmake,
  libpulse-dev,
  libsndfile1-dev,
+ libasound2-dev
 Standards-Version: 4.6.2
 Homepage: https://github.com/qualcomm-qrb-ros/qrb_ros_audio_service
 
@@ -19,7 +20,8 @@ Depends:
  qrb-audio-common-lib (= ${binary:Version}),
  libpulse-dev,
  libsndfile1-dev,
- ${misc:Depends},
+ libasound2-dev,
+ ${misc:Depends}
 Description: QRB Audio Common Library  - development files
  Development files for the QRB Audio Common Library, including headers
  and CMake configuration files needed to build applications that use
@@ -33,6 +35,7 @@ Depends:
  ${misc:Depends},
  libpulse0,
  libsndfile1,
+ libasound2
 Description: QRB Audio Common Library
  qrb_audio_common_lib is a library used by qrb_ros_audio_common.
  It is implemented based on PulseAudio’s API for playback and capture.

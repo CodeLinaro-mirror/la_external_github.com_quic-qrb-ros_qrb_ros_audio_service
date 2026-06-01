@@ -1,3 +1,10 @@
+qrb-audio-common-lib (2.0.0) noble; urgency=medium
+
+  * Add ALSA backend support, current support pulseaudio and alsa backends.
+  * Add API detect_audio_backend to auto detect supported backend.
+
+ -- Ronghui Zhu <ronghuiz@qti.qualcomm.com>  Tue, 2 Nov 2026 10:18:00 -0000
+
 qrb-audio-common-lib (1.0.3) noble; urgency=medium
 
   * Fix build failure caused by missing dependencies.

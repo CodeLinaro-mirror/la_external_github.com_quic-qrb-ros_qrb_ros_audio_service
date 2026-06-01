@@ -6,6 +6,7 @@ Rules-Requires-Root: no
 Build-Depends:
  debhelper-compat (= 13),
  cmake,
+ qrb-audio-common-lib-dev
 Standards-Version: 4.6.2
 Homepage: https://github.com/qualcomm-qrb-ros/qrb_ros_audio_service
 
@@ -15,11 +16,11 @@ Architecture: any
 Multi-Arch: same
 Depends:
  qrb-audio-manager (= ${binary:Version}),
- ${misc:Depends},
+ ${misc:Depends}
 Description: QRB Audio Manager Library - development files
  Development files for the QRB Audio Manager Library, including headers
  and CMake configuration files needed to build applications that use
- the library. 
+ the library.
 
 Package: qrb-audio-manager
 Architecture: any
@@ -27,6 +28,7 @@ Multi-Arch: same
 Depends:
  ${shlibs:Depends},
  ${misc:Depends},
+ qrb-audio-common-lib
 Description: QRB Audio Manager Library
  It creates stream based on client requests (PlaybackStream for playback,
  RecordThread for record), provides operations on the stream, and maintains

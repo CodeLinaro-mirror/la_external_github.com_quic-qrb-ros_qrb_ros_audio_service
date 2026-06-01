@@ -1,3 +1,11 @@
+ros-jazzy-qrb-ros-audio-service (2.0.0) noble; urgency=medium
+
+  * Merge qrb_ros_audio_common topic subscriber/publisher into qrb_ros_audio_service.
+  * Change topic data format from qrb_ros_audio_common_msgs::msg::AudioData to
+    qrb_ros_audio_service_msgs::msg::AudioData.
+
+ -- Ronghui Zhu <ronghuiz@qti.qualcomm.com>  Tue, 2 Nov 2026 10:18:00 -0000
+
 ros-jazzy-qrb-ros-audio-service (1.0.3) noble; urgency=medium
 
   * Fix build failure caused by missing dependencies.
@@ -21,5 +29,3 @@ ros-jazzy-qrb-ros-audio-service (1.0.0) noble; urgency=high
   * Initial release of QRB ROS Audio Service package
 
  -- yuchpan <yuchpan@qti.qualcomm.com>  Wed, 30 Jul 2025 07:44:01 -0000
-
-
