@@ -47,7 +47,8 @@ enum class StreamCommand
   START,
   STOP,
   CLOSE,
-  MUTE
+  MUTE,
+  EOS
 };
 
 struct StreamConfigs

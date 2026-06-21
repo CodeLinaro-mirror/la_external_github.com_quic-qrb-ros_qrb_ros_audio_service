@@ -91,6 +91,9 @@ static bool audio_common_stream_cb(const void * const payload,
             cmd_str = audio_stream_cmd_name[StreamCommand::STOP];
             result = false;
             break;
+          case StreamEvent::StreamEos:
+            cmd_str = audio_stream_cmd_name[StreamCommand::EOS];
+            break;
           case StreamEvent::StreamData:
             if (g_stream_data_cb) {
               g_stream_data_cb(am_handle,
@@ -424,7 +427,7 @@ void AudioManager::on_task_completed(int domain,
 
         if (audio_stream_cmd_name[StreamCommand::OPEN] == cmd)
           msg.command = StreamCommand::START;
-        else if (audio_stream_cmd_name[StreamCommand::START] == cmd)
+        else if (audio_stream_cmd_name[StreamCommand::EOS] == cmd)
           msg.command = StreamCommand::STOP;
         else if (audio_stream_cmd_name[StreamCommand::STOP] == cmd)
           msg.command = StreamCommand::CLOSE;

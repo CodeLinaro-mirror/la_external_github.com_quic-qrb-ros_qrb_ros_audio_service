@@ -503,7 +503,10 @@ static void stream_drain_complete(pa_stream * stream, int success, void * userda
     });
     t.detach();
   } else {
-    LOGI("EOF\n");
+    LOGI("EOS\n");
+    uint32_t stream_handle = IAudioStream::get_handle(current_stream);
+    StreamEventData dummy_data{};
+    current_stream->event_cb(StreamEvent::StreamEos, dummy_data, (void *)(intptr_t)stream_handle);
     current_stream->internal_stopstream();
   }
 }

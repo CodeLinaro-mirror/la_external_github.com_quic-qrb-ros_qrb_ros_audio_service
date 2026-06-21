@@ -25,7 +25,8 @@ std::map<StreamCommand, std::string> audio_stream_cmd_name {
   { StreamCommand::START, "start" },
   { StreamCommand::STOP, "stop" },
   { StreamCommand::CLOSE, "close" },
-  { StreamCommand::MUTE, "mute" }
+  { StreamCommand::MUTE, "mute" },
+  { StreamCommand::EOS, "eos" }
 };
 // clang-format on
 

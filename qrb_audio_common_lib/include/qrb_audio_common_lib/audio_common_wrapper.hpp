@@ -27,6 +27,7 @@ enum class StreamEvent
   StreamAbort,
   StreamTimestamp,
   StreamData,
+  StreamEos,
 };
 
 union StreamEventData

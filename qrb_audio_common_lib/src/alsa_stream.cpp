@@ -343,6 +343,7 @@ void AlsaPlaybackStream::file_playback_thread()
     snd_pcm_drain(pcm_handle_);
     running_ = false;
     StreamEventData dummy{};
+    event_cb(StreamEvent::StreamEos, dummy, (void *)(intptr_t)handle_);
     event_cb(StreamEvent::StreamStoped, dummy, (void *)(intptr_t)handle_);
   }
 }
