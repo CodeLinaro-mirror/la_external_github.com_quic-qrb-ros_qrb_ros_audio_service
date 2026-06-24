@@ -420,7 +420,26 @@ AlsaCaptureStream::AlsaCaptureStream(const AudioStreamInfo & info,
     SF_INFO sf_info{};
     sf_info.samplerate = static_cast<int>(info.rate);
     sf_info.channels = info.channels;
-    sf_info.format = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
+    sf_info.format = SF_FORMAT_WAV;
+
+    switch (info.format) {
+      case 8:
+        sf_info.format = sf_info.format | SF_FORMAT_PCM_S8;
+        break;
+      case 16:
+        sf_info.format = sf_info.format | SF_FORMAT_PCM_16;
+        break;
+      case 24:
+        sf_info.format = sf_info.format | SF_FORMAT_PCM_24;
+        break;
+      case 32:
+        sf_info.format = sf_info.format | SF_FORMAT_PCM_32;
+        break;
+      default:
+        sf_info.format = sf_info.format | SF_FORMAT_PCM_16;
+        break;
+    }
+
     snd_file_ = sf_open_fd(file_fd_, SFM_WRITE, &sf_info, 0);
     if (!snd_file_) {
       throw std::runtime_error("failed to open sndfile for write: " + info.file_path);

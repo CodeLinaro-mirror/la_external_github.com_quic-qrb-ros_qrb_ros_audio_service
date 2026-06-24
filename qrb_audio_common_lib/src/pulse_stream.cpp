@@ -322,10 +322,21 @@ uint32_t PulseCommonStream::audio_stream_open(const AudioStreamInfo & stream_inf
   streasample_spec->channels = stream_info.channels;
 
   switch (stream_info.format) {
-    case 8:  streasample_spec->format = PA_SAMPLE_U8;    break;
-    case 16: streasample_spec->format = PA_SAMPLE_S16NE; break;
-    case 24: streasample_spec->format = PA_SAMPLE_S24NE; break;
-    case 32: streasample_spec->format = PA_SAMPLE_S32NE; break;
+    case 8:
+      streasample_spec->format = PA_SAMPLE_U8;
+      break;
+    case 16:
+      streasample_spec->format = PA_SAMPLE_S16NE;
+      break;
+    case 24:
+      streasample_spec->format = PA_SAMPLE_S24NE;
+      break;
+    case 32:
+      streasample_spec->format = PA_SAMPLE_S32NE;
+      break;
+    default:
+      streasample_spec->format = PA_SAMPLE_S16NE;
+      break;
   }
 
   if (stream_info.file_path.empty() && (!pa_sample_spec_valid(streasample_spec.get()))) {
