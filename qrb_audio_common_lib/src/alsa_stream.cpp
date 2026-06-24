@@ -109,7 +109,7 @@ snd_pcm_format_t AlsaCommonStream::get_alsa_format() const
     case 16:
       return SND_PCM_FORMAT_S16_LE;
     case 24:
-      return SND_PCM_FORMAT_S24_LE;
+      return SND_PCM_FORMAT_S24_3LE;
     case 32:
       return SND_PCM_FORMAT_S32_LE;
     default:
@@ -256,6 +256,25 @@ AlsaPlaybackStream::AlsaPlaybackStream(const AudioStreamInfo & info,
 
     stream_info_.rate = static_cast<uint32_t>(sf_info.samplerate);
     stream_info_.channels = static_cast<uint8_t>(sf_info.channels);
+
+    switch (sf_info.format & SF_FORMAT_SUBMASK) {
+      case SF_FORMAT_PCM_S8:
+      case SF_FORMAT_PCM_U8:
+        stream_info_.format = 8;
+        break;
+      case SF_FORMAT_PCM_16:
+        stream_info_.format = 16;
+        break;
+      case SF_FORMAT_PCM_24:
+        stream_info_.format = 24;
+        break;
+      case SF_FORMAT_PCM_32:
+        stream_info_.format = 32;
+        break;
+      default:
+        break;
+    }
+    LOGD("zrh_test: update fromat to %d\n", stream_info_.format);
   }
 
   if (open_pcm(SND_PCM_STREAM_PLAYBACK) < 0) {

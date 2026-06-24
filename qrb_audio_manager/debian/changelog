@@ -1,3 +1,11 @@
+qrb-audio-manager (2.0.1) noble; urgency=medium
+
+  * Fix one-touch playback not work.
+  * Fix 24bit wav file can't playback.
+  * Fix 24bit record mute.
+
+ -- Ronghui Zhu <ronghuiz@qti.qualcomm.com>  Mon, 22 Jun 2026 09:42:00 +0000
+
 qrb-audio-manager (2.0.0) noble; urgency=medium
 
   * Directly invoke qrb_audio_common_lib API to implement audio functionality.
