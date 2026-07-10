@@ -274,7 +274,6 @@ AlsaPlaybackStream::AlsaPlaybackStream(const AudioStreamInfo & info,
       default:
         break;
     }
-    LOGD("zrh_test: update fromat to %d\n", stream_info_.format);
   }
 
   if (open_pcm(SND_PCM_STREAM_PLAYBACK) < 0) {

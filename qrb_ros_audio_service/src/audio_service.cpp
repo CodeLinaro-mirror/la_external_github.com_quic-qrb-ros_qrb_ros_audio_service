@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: BSD-3-Clause-Clear
 
 // clang-format off
+#include <algorithm>
+#include <chrono>
 #include <cstdint>
 #include <cstring>
 
@@ -37,11 +39,35 @@ AudioServer::AudioServer(const rclcpp::NodeOptions & options)
   AudioManager::set_stream_data_callback(
       std::bind(&AudioServer::on_stream_data, this, _1, _2, _3));
 
+  latency_log_enabled_ = this->declare_parameter<bool>("enable_latency_log", false);
+
+  param_callback_handle_ = this->add_on_set_parameters_callback(
+      [this](const std::vector<rclcpp::Parameter> & params) {
+        rcl_interfaces::msg::SetParametersResult result;
+        result.successful = true;
+        for (const auto & param : params) {
+          if (param.get_name() == "enable_latency_log") {
+            latency_log_enabled_ = param.as_bool();
+            RCLCPP_INFO(this->get_logger(), "enable_latency_log set to %s",
+                latency_log_enabled_ ? "true" : "false");
+          }
+        }
+        return result;
+      });
+
+  latency_log_timer_ = this->create_wall_timer(
+      std::chrono::seconds(1), std::bind(&AudioServer::on_latency_log_timer, this));
+
   rclcpp::on_shutdown(std::bind(&AudioServer::shutdown_callback, this));
 }
 
 void AudioServer::on_stream_data(uint32_t am_handle, const void * data, size_t size)
 {
+  bool log_enabled = latency_log_enabled_.load();
+  std::chrono::steady_clock::time_point t1;
+  if (log_enabled)
+    t1 = std::chrono::steady_clock::now();
+
   auto it = capture_pubs_.find(am_handle);
   if (it == capture_pubs_.end())
     return;
@@ -50,13 +76,70 @@ void AudioServer::on_stream_data(uint32_t am_handle, const void * data, size_t s
   msg.stream_handle = am_handle;
   msg.data.assign(static_cast<const uint8_t *>(data), static_cast<const uint8_t *>(data) + size);
   it->second->publish(msg);
+
+  if (log_enabled) {
+    auto t2 = std::chrono::steady_clock::now();
+    uint64_t latency_usec = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+    update_latency_stats(capture_latency_stats_, am_handle, latency_usec);
+  }
 }
 
 void AudioServer::on_audio_data(uint32_t am_handle,
     const qrb_ros_audio_service_msgs::msg::AudioData::SharedPtr msg)
 {
-  if (!msg->data.empty())
-    AudioManager::get_instance()->write_stream(am_handle, msg->data.data(), msg->data.size());
+  if (msg->data.empty())
+    return;
+
+  bool log_enabled = latency_log_enabled_.load();
+  std::chrono::steady_clock::time_point t3;
+  if (log_enabled)
+    t3 = std::chrono::steady_clock::now();
+
+  AudioManager::get_instance()->write_stream(am_handle, msg->data.data(), msg->data.size());
+
+  if (log_enabled) {
+    auto t4 = std::chrono::steady_clock::now();
+    uint64_t latency_usec = std::chrono::duration_cast<std::chrono::microseconds>(t4 - t3).count();
+    update_latency_stats(playback_latency_stats_, am_handle, latency_usec);
+  }
+}
+
+void AudioServer::update_latency_stats(std::unordered_map<uint32_t, LatencyStats> & stats_map,
+    uint32_t handle,
+    uint64_t latency_usec)
+{
+  std::lock_guard<std::mutex> lock(latency_stats_mutex_);
+  auto & stats = stats_map[handle];
+  stats.count++;
+  stats.sum_usec += latency_usec;
+  stats.max_usec = std::max(stats.max_usec, latency_usec);
+  stats.min_usec = std::min(stats.min_usec, latency_usec);
+}
+
+void AudioServer::on_latency_log_timer()
+{
+  if (!latency_log_enabled_.load())
+    return;
+
+  std::lock_guard<std::mutex> lock(latency_stats_mutex_);
+
+  for (auto & [handle, stats] : capture_latency_stats_) {
+    if (stats.count == 0)
+      continue;
+    RCLCPP_INFO(this->get_logger(),
+        "[latency][capture] handle=0x%x avg=%luus min=%luus max=%luus count=%lu", handle,
+        stats.sum_usec / stats.count, stats.min_usec, stats.max_usec, stats.count);
+  }
+  capture_latency_stats_.clear();
+
+  for (auto & [handle, stats] : playback_latency_stats_) {
+    if (stats.count == 0)
+      continue;
+    RCLCPP_INFO(this->get_logger(),
+        "[latency][playback] handle=0x%x avg=%luus min=%luus max=%luus count=%lu", handle,
+        stats.sum_usec / stats.count, stats.min_usec, stats.max_usec, stats.count);
+  }
+  playback_latency_stats_.clear();
 }
 
 void AudioServer::create_pcm_topic(uint32_t stream_handle,
